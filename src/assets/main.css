@@ -1,35 +1,34 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+@layer base {
+  :root {
+    --color-primary: 160deg 100% 37%;
 
-  font-weight: normal;
-}
+    --color-black: #181818;
+    --color-black-soft: #222222;
+    --color-black-mute: #282828;
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-}
+    --color-white: #ffffff;
+    --color-white-soft: #f8f8f8;
+    --color-white-mute: #f2f2f2;
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    --color-energetic: #fcd34d;
+    --color-melancholic: #0891b2;
+    --color-relaxing: #4ade80;
+    --color-upbeat: #ef4444;
+    --color-uplifting: #a855f7;
+    --color-love: #be185d;
+    --color-thoughtful: #581c87;
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
+@layer components {
+  .equalizer-container {
+    @apply w-full fixed right-0 bottom-0 flex justify-center items-end
   }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+  .equalizer-bar {
+    @apply w-full animate-equalizer rounded-t
   }
 }
