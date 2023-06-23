@@ -8,7 +8,7 @@ const props = withDefaults(
         size?: 'small' | 'medium' | 'large' | 'xlarge';
         disabled?: boolean;
         slotted?: boolean;
-        text: string;
+        text?: string;
     }>(), {
         type: 'button',
         variant: 'primary',
@@ -29,7 +29,7 @@ const className = computed(() => {
     }
 
     const focusClass = {
-        primary: 'focus:outline focus:outline-offset-4 focus:outline-primary/50',
+        primary: 'focus:outline focus:outline-offset-4 focus:outline-primary/50 focus:bg-primary focus:text-white focus:animate-shadow-glow',
         secondary: 'focus:outline focus:outline-offset-4 focus:outline-primary/50 focus:bg-primary focus:text-white focus:animate-shadow-glow',
         tertiary: 'focus:outline focus:outline-offset-4 focus:outline-primary/50 focus:bg-primary/25',
     };
@@ -49,14 +49,12 @@ const className = computed(() => {
         xlarge: 'text-xl',
     }
 
-    return `
-        ${globalClass}
-        ${hoverClass[props.variant]}
-        ${focusClass[props.variant]}
-        ${disabledClass}
-        ${variantClass[props.variant]}
-        ${sizeClass[props.size]}
-    `;
+    return `${globalClass} ` +
+        `${hoverClass[props.variant]} ` +
+        `${focusClass[props.variant]} ` +
+        `${disabledClass} ` +
+        `${variantClass[props.variant]} ` +
+        `${sizeClass[props.size]} `;
 });
 </script>
 

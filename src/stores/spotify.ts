@@ -1,4 +1,4 @@
-import { useLocalStorage, type RemovableRef } from "@vueuse/core";
+import { type RemovableRef, useSessionStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 
 interface ISpotify {
@@ -30,7 +30,7 @@ const spotify: ISpotify = {
 
 export const useSpotifyStore = defineStore('spotify', {
   state: () => ({
-    spotify: useLocalStorage('spotifyState', spotify),
+    spotify: useSessionStorage('spotifyState', spotify),
   }),
   actions: {
     connect(accessToken: string) {

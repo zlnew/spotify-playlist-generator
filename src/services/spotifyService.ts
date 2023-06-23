@@ -1,4 +1,5 @@
 import axios from "axios";
+import querystring from "querystring";
 
 const authBaseUrl = import.meta.env.VITE_AUTH_BASE_URL;
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -20,15 +21,30 @@ interface IRecommendations {
   seed_tracks: string;
 }
 
-export function loginWithSpotify(): void {
-  const scopes = 'user-read-private user-read-email user-top-read';
-  const spotifyAuthUrl = `${authBaseUrl}/authorize?`+
-    `client_id=${clientId}`+
-    `&response_type=code`+
-    `&redirect_uri=${encodeURIComponent(redirectUri)}`+
-    `&scope=${encodeURIComponent(scopes)}`;
+interface IPlaylistStore {
+  name?: string;
+  public: boolean;
+  description?: string;
+}
 
-  window.location.href = spotifyAuthUrl;
+interface IAddItemsToPlaylist {
+  uris: string[];
+}
+
+export function authorizeAccount(): void {
+  const state = generateRandomString(16);
+  const scope = 'user-read-private user-read-email user-top-read playlist-modify-private playlist-modify-public';
+
+  const queryParams = {
+    response_type: 'code',
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    scope: scope,
+    state: state,
+  };
+
+  const authorizeUrl = `https://accounts.spotify.com/authorize?${querystring.stringify(queryParams)}`;
+  window.location.href = authorizeUrl;
 }
 
 export async function getAccessToken(code: string): Promise<string> {
@@ -118,9 +134,55 @@ export async function getRecommendations(
 
   return response.data;
 }
-  
-  
-  
-  
-  
+
+export async function createPlaylist(
+  accessToken: string,
+  userId: string,
+  body: IPlaylistStore = {
+    public: false,
+  },
+): Promise<Object>
+{
+  const response = await axios.post(`${apiBaseUrl}/users/${userId}/playlists`, body, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    },
+  });
+
+  if (response.status !== 201) {
+    throw new Error('Failed to create playlist');
+  }
+
+  return response.data;
+}
+
+export async function addItemsToPlaylist(
+  accessToken: string,
+  playlistId: string,
+  body: IAddItemsToPlaylist,
+): Promise<string>
+{
+  const response = await axios.post(`${apiBaseUrl}/playlists/${playlistId}/tracks`, body, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    },
+  });
+
+  if (response.status!== 201) {
+    throw new Error('Failed to add items to playlist');
+  }
+
+  return response.data;
+}
+
+function generateRandomString(length: number) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+
+  for (let i = 0; i < length; i++) {
+    randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return randomString;
+}
   

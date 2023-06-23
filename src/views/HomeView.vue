@@ -10,7 +10,9 @@ import VButton from "@/components/Button.vue";
     </div>
     <div class="animate-fade-in flex justify-center items-center space-x-4">
       <router-link to="get-started">
-        <v-button variant="secondary" text="Get Started" size="xlarge" />
+        <v-button variant="primary" size="xlarge" slotted>
+          <v-icon icon="fa-solid fa-play" size="lg" class="mr-2" />Get Started
+        </v-button>
       </router-link>
     </div>
   </main>
