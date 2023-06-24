@@ -2,12 +2,12 @@ import { ref, type Ref } from 'vue';
 
 export let currentAudio: Ref<HTMLAudioElement | null> = ref(null);
 
-export function play(audioID: string, volume: number) {
-  const track = document.getElementById(`track${audioID}`) as HTMLElement;
-  const titleTrack = document.getElementById(`title${audioID}`) as HTMLElement;
-  const playButton = document.getElementById(`play${audioID}`) as HTMLElement;
-  const pauseButton = document.getElementById(`pause${audioID}`) as HTMLElement;
-  const audio = document.getElementById(audioID) as HTMLAudioElement;
+export function play(audio: { id: string, src: string }, volume: number) {
+  const track = document.getElementById(`track${audio.id}`) as HTMLElement;
+  const titleTrack = document.getElementById(`title${audio.id}`) as HTMLElement;
+  const playButton = document.getElementById(`play${audio.id}`) as HTMLElement;
+  const pauseButton = document.getElementById(`pause${audio.id}`) as HTMLElement;
+  const audioEl = document.getElementById(audio.id) as HTMLAudioElement;
 
   track.classList.add('bg-primary/10');
   titleTrack.classList.add('text-primary');
@@ -18,11 +18,11 @@ export function play(audioID: string, volume: number) {
     pause(currentAudio.value.id);
   }
 
-  audio.play();
-  audio.volume = volume;
-  currentAudio.value = audio;
+  audioEl.play();
+  audioEl.volume = volume;
+  currentAudio.value = audioEl;
 
-  audio.addEventListener('ended', () => {
+  audioEl.addEventListener('ended', () => {
     track.classList.remove('bg-primary/10');
     titleTrack.classList.remove('text-primary');
     playButton.classList.remove('hidden');
@@ -36,7 +36,7 @@ export function pause(audioID: string) {
   const titleTrack = document.getElementById(`title${audioID}`) as HTMLElement;
   const playButton = document.getElementById(`play${audioID}`) as HTMLElement;
   const pauseButton = document.getElementById(`pause${audioID}`) as HTMLElement;
-  const audio = document.getElementById(audioID) as HTMLAudioElement;
+  const audioEl = document.getElementById(audioID) as HTMLAudioElement;
 
   if (track) {
     track.classList.remove('bg-primary/10');
@@ -44,7 +44,7 @@ export function pause(audioID: string) {
     playButton.classList.remove('hidden');
     pauseButton.classList.add('hidden');
   
-    audio.pause();
+    audioEl.pause();
     currentAudio.value = null;
   }
 }

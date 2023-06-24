@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RouterLink } from "vue-router";
 import VButton from '@/components/Button.vue';
 import { useSpotifyStore } from '@/stores/spotify';
 import { ref, reactive } from 'vue';
@@ -7,28 +8,32 @@ import { addItemsToPlaylist, createPlaylist } from '@/services/spotifyService';
 
 const spotify = useSpotifyStore();
 const tracks: any = reactive(spotify.getRecommendations.tracks);
+const volume = ref(0.5);
 
-const volume = ref(0.2);
-
-function handleVolumeChange() {
-  setVolume(volume.value);
-}
-
-async function saveToPlaylist() {
+async function saveItemsToPlaylist() {
   const accessToken = spotify.getAccessToken;
   const userProfile: any = spotify.getUserProfile;
   const userId = userProfile.id;
-  
+
+  const playlist: any = await creatingPlaylist(accessToken, userId);
+  await addingItemsToPlaylist(accessToken, playlist.id);
+}
+
+async function creatingPlaylist(accessToken: string, userId: string) {
   const createPlaylistData = {
     name: 'Vibes In Playlist',
     public: true,
   };
-  const playlist: any = await createPlaylist(accessToken, userId, createPlaylistData);
-  
+
+  return await createPlaylist(accessToken, userId, createPlaylistData);
+}
+
+async function addingItemsToPlaylist(accessToken: string, playlistId: string) {
   const addItemsToPlaylistData = {
     uris: tracks.map((track: any) => track.uri),
   }
-  await addItemsToPlaylist(accessToken, playlist.id, addItemsToPlaylistData).then((res: any) => {
+
+  await addItemsToPlaylist(accessToken, playlistId, addItemsToPlaylistData).then((res: any) => {
     spotify.playlist(res);
   });
 }
@@ -57,9 +62,9 @@ async function saveToPlaylist() {
           <tr v-for="(track, number) in tracks" :id="`track${track.id}`" class="transition ease-in-out rounded hover:bg-primary/10">
             <td class="p-1 pl-3">
               <template v-if="track.preview_url">
-                <v-icon @click="play(track.id, volume)" :id="`play${track.id}`" icon="fa-solid fa-play" class="audio-preview block" />
+                <v-icon @click="play({ id: track.id, src: track.preview_url }, volume)" :id="`play${track.id}`" icon="fa-solid fa-play" class="audio-preview block" />
                 <v-icon @click="pause(track.id)" :id="`pause${track.id}`" icon="fa-solid fa-pause" class="audio-preview hidden text-primary" />
-                <audio :id="track.id" :src="track.preview_url"></audio>
+                <audio :id="track.id" :src="track.preview_url" crossorigin="anonymous"></audio>
               </template>
             </td>
             
@@ -88,17 +93,21 @@ async function saveToPlaylist() {
     </div>
 
     <div class="flex justify-between items-center">
-      <div>
-        <input @input="handleVolumeChange" type="range" v-model="volume" min="0" max="1" step="0.01" class="volume-slider" />
+      <div class="flex space-x-2">
+        <v-icon icon="fa-solid fa-volume-high" />
+        <input @input="setVolume(volume);" type="range" v-model="volume" min="0" max="1" step="0.01" class="volume-slider" />
       </div>
 
       <div class="flex justify-end space-x-4">
-        <v-button @click="saveToPlaylist()" variant="primary" slotted>
-          <v-icon icon="fa-brands fa-spotify" size="lg" class="mr-2" />Save it to playlist
+        <v-button @click="saveItemsToPlaylist()" variant="primary" slotted>
+          <v-icon icon="fa-brands fa-spotify" size="lg" class="mr-2" />Save tracks to a new playlist
         </v-button>
-        <v-button variant="secondary" slotted>
-          <v-icon icon="fa-solid fa-rotate" size="lg" class="mr-2" />Generate Again
-        </v-button>
+
+        <router-link to="get-started">
+          <v-button variant="secondary" slotted>
+            <v-icon icon="fa-solid fa-rotate" size="lg" class="mr-2" />Generate Again
+          </v-button>
+        </router-link>
       </div>
     </div>
   </main>
