@@ -49,8 +49,28 @@ export function pause(audioID: string) {
   }
 }
 
-export function setVolume(newVolume: number) {
-  if (currentAudio.value !== null) {
-    currentAudio.value.volume = newVolume;
-  }
+const UI_Elements = (track_id): Object => {
+  //
+  return elements;
+}
+
+export function toggleAudioPlay(track: Object) {
+  //
+}
+
+export function updateUI_onAudioPlay() {
+  //
+} 
+
+export function updateUI_onAudioSwitch() {
+  //
+}
+
+export function updateUI_onAudioStop() {
+  //
+}
+
+export function setAudioVolume(volume: number) {
+  const audioStore = useAudioStore();
+  audioStore.state.volume = volume:
 }
