@@ -1,76 +1,85 @@
-import { ref, type Ref } from 'vue';
+import { useAudioStore, type ITrack } from '@/stores/audio';
 
-export let currentAudio: Ref<HTMLAudioElement | null> = ref(null);
+function updateUI_onAudioPlay(track_id: string) {
+  const UI: any = UI_Elements(track_id);
+  UI.track.classList.add('bg-primary/10');
+  UI.titleTrack.classList.add('text-primary');
+  UI.playButton.classList.add('hidden');
+  UI.pauseButton.classList.remove('hidden');
+}
 
-export function play(audio: { id: string, src: string }, volume: number) {
-  const track = document.getElementById(`track${audio.id}`) as HTMLElement;
-  const titleTrack = document.getElementById(`title${audio.id}`) as HTMLElement;
-  const playButton = document.getElementById(`play${audio.id}`) as HTMLElement;
-  const pauseButton = document.getElementById(`pause${audio.id}`) as HTMLElement;
-  const audioEl = document.getElementById(audio.id) as HTMLAudioElement;
+function updateUI_onAudioPause(track_id: string) {
+  const UI: any = UI_Elements(track_id);
+  UI.track.classList.add('bg-primary/10');
+  UI.titleTrack.classList.add('text-primary');
+  UI.playButton.classList.remove('hidden');
+  UI.pauseButton.classList.add('hidden');
+}
 
-  track.classList.add('bg-primary/10');
-  titleTrack.classList.add('text-primary');
-  playButton.classList.add('hidden');
-  pauseButton.classList.remove('hidden');
+function updateUI_onAudioSwitch(track_id: string) {
+  const UI: any = UI_Elements(track_id);
+  UI.track.classList.remove('bg-primary/10');
+  UI.titleTrack.classList.remove('text-primary');
+  UI.playButton.classList.remove('hidden');
+  UI.pauseButton.classList.add('hidden');
+}
 
-  if (currentAudio.value !== null) {
-    pause(currentAudio.value.id);
+export function updateUI_onAudioStop(track_id: string) {
+  const UI: any = UI_Elements(track_id);
+  UI.track.classList.remove('bg-primary/10');
+  UI.titleTrack.classList.remove('text-primary');
+  UI.playButton.classList.remove('hidden');
+  UI.pauseButton.classList.add('hidden');
+}
+
+const UI_Elements = (track_id: string): Object => {
+  const track = document.getElementById(`track${track_id}`) as HTMLElement;
+  const titleTrack = document.getElementById(`title${track_id}`) as HTMLElement;
+  const playButton = document.getElementById(`play${track_id}`) as HTMLElement;
+  const pauseButton = document.getElementById(`pause${track_id}`) as HTMLElement;
+  const audioEl = document.getElementById(track_id) as HTMLAudioElement;
+
+  return { track, titleTrack, playButton, pauseButton, audioEl };
+}
+
+function playAudio(track: ITrack): void {
+  const audioStore = useAudioStore();
+  const settings = { id: track.id, url: track.url, };
+
+  audioStore.setTrack(settings);
+  audioStore.toggleState('playing');
+  updateUI_onAudioPlay(track.id);
+}
+
+function pauseAudio(track: ITrack): void {
+  const audioStore = useAudioStore();
+  const settings = { id: track.id, url: track.url, };
+
+  audioStore.setTrack(settings);
+  audioStore.toggleState('paused');  
+  updateUI_onAudioPause(track.id);
+}
+
+export function toggleAudioPlay(track: ITrack) {
+  const audioStore = useAudioStore();
+
+  if (audioStore.track.id && track.id !== audioStore.track.id && audioStore.state.name !== 'suspended') {
+    updateUI_onAudioSwitch(audioStore.track.id);
+    audioStore.toggleState('suspended');
   }
 
-  audioEl.play();
-  audioEl.volume = volume;
-  currentAudio.value = audioEl;
-
-  audioEl.addEventListener('ended', () => {
-    track.classList.remove('bg-primary/10');
-    titleTrack.classList.remove('text-primary');
-    playButton.classList.remove('hidden');
-    pauseButton.classList.add('hidden');
-    currentAudio.value = null;
-  });
-}
-
-export function pause(audioID: string) {
-  const track = document.getElementById(`track${audioID}`) as HTMLElement;
-  const titleTrack = document.getElementById(`title${audioID}`) as HTMLElement;
-  const playButton = document.getElementById(`play${audioID}`) as HTMLElement;
-  const pauseButton = document.getElementById(`pause${audioID}`) as HTMLElement;
-  const audioEl = document.getElementById(audioID) as HTMLAudioElement;
-
-  if (track) {
-    track.classList.remove('bg-primary/10');
-    titleTrack.classList.remove('text-primary');
-    playButton.classList.remove('hidden');
-    pauseButton.classList.add('hidden');
-  
-    audioEl.pause();
-    currentAudio.value = null;
+  if (audioStore.state.name === 'playing') {
+    pauseAudio(track);
+    return;
   }
-}
 
-const UI_Elements = (track_id): Object => {
-  //
-  return elements;
-}
-
-export function toggleAudioPlay(track: Object) {
-  //
-}
-
-export function updateUI_onAudioPlay() {
-  //
-} 
-
-export function updateUI_onAudioSwitch() {
-  //
-}
-
-export function updateUI_onAudioStop() {
-  //
+  if (audioStore.state.name === 'suspended' || audioStore.state.name === 'paused') {
+    playAudio(track);
+    return;
+  }
 }
 
 export function setAudioVolume(volume: number) {
   const audioStore = useAudioStore();
-  audioStore.state.volume = volume:
+  audioStore.setVolume(volume);
 }

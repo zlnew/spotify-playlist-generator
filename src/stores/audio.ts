@@ -1,22 +1,40 @@
 import { defineStore } from 'pinia';
 
-interface IAudioState {
+export interface ITrack {
+  id: string;
   url: string;
-  volume?: number;
-  isPlaying?: boolean;
+}
+
+export interface IAudioState {
+  name: 'playing' | 'paused' | 'suspended' | 'ended';
+  volume: number;
 }
 
 const defaultAudioState: IAudioState = {
-  url: '',
+  name: 'suspended',
   volume: 0.5,
-  isPlaying: false,
-}
+};
+
+const defaultTrackSettings: ITrack = {
+  id: '',
+  url: '',
+};
 
 export const useAudioStore = defineStore('audio', {
-  state: () => ({ state: defaultAudioState }),
+  state: () => ({
+    state: defaultAudioState,
+    track: defaultTrackSettings,
+  }),
   actions: {
-    togglePlay(state: IAudioState) {
-      this.state = { ...defaultAudioState, ...state };
+    toggleState(state: IAudioState['name'], volume: IAudioState['volume'] = defaultAudioState.volume) {
+      this.state.name = state;
+      this.state.volume = volume;
+    },
+    setVolume(value: number) {
+      this.state.volume = value;
+    },
+    setTrack(track: ITrack) {
+      this.track = track;
     },
   },
   getters: {}

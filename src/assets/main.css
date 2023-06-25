@@ -25,10 +25,7 @@
 }
 
 @layer components {
-  .equalizer-container {
+  .av-bar-container {
     @apply w-full fixed right-0 bottom-0 flex justify-center items-end
-  }
-  .equalizer-bar {
-    @apply w-full animate-equalizer rounded-t
   }
 }

@@ -2,9 +2,10 @@
 import { RouterLink } from "vue-router";
 import VButton from '@/components/Button.vue';
 import { useSpotifyStore } from '@/stores/spotify';
-import { ref, reactive } from 'vue';
-import { play, pause, setVolume } from '@/services/audioService';
+import { ref, reactive, onBeforeUnmount } from 'vue';
+import { toggleAudioPlay, setAudioVolume } from '@/services/audioService';
 import { addItemsToPlaylist, createPlaylist } from '@/services/spotifyService';
+import { useAudioStore } from "@/stores/audio";
 
 const spotify = useSpotifyStore();
 const tracks: any = reactive(spotify.getRecommendations.tracks);
@@ -37,6 +38,10 @@ async function addingItemsToPlaylist(accessToken: string, playlistId: string) {
     spotify.playlist(res);
   });
 }
+
+onBeforeUnmount(() => {
+  useAudioStore().toggleState('suspended');
+});
 </script>
 
 <template>
@@ -62,9 +67,25 @@ async function addingItemsToPlaylist(accessToken: string, playlistId: string) {
           <tr v-for="(track, number) in tracks" :id="`track${track.id}`" class="transition ease-in-out rounded hover:bg-primary/10">
             <td class="p-1 pl-3">
               <template v-if="track.preview_url">
-                <v-icon @click="play({ id: track.id, src: track.preview_url }, volume)" :id="`play${track.id}`" icon="fa-solid fa-play" class="audio-preview block" />
-                <v-icon @click="pause(track.id)" :id="`pause${track.id}`" icon="fa-solid fa-pause" class="audio-preview hidden text-primary" />
-                <audio :id="track.id" :src="track.preview_url" crossorigin="anonymous"></audio>
+                <v-icon
+                  @click="toggleAudioPlay({
+                    id: track.id,
+                    url: track.preview_url
+                  })"
+                  :id="`play${track.id}`"
+                  icon="fa-solid fa-play"
+                  class="block"
+                />
+
+                <v-icon
+                  @click="toggleAudioPlay({
+                    id: track.id,
+                    url: track.preview_url
+                  })"
+                  :id="`pause${track.id}`"
+                  icon="fa-solid fa-pause"
+                  class="hidden text-primary"
+                />
               </template>
             </td>
             
@@ -95,7 +116,7 @@ async function addingItemsToPlaylist(accessToken: string, playlistId: string) {
     <div class="flex justify-between items-center">
       <div class="flex space-x-2">
         <v-icon icon="fa-solid fa-volume-high" />
-        <input @input="setVolume(volume);" type="range" v-model="volume" min="0" max="1" step="0.01" class="volume-slider" />
+        <input @input="setAudioVolume(volume);" type="range" v-model="volume" min="0" max="1" step="0.01" class="volume-slider" />
       </div>
 
       <div class="flex justify-end space-x-4">

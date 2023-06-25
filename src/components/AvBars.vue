@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useAudioStore } from '@/stores/audio';
+import { updateUI_onAudioStop } from '@/services/audioService';
 import FFT from 'fft.js';
-import { onMounted, onUpdated, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 defineOptions({
   inheritAttrs: false
-})
+});
 
 const audioStore = useAudioStore();
 
@@ -69,8 +70,7 @@ const createSourceNode = (): void => {
     const fftObject = new FFT(analyserNode.value.fftSize);
 
     audioElement.addEventListener('ended', () => {
-      cancelAnimationFrame(0);
-      audioStore.state.isPlaying = false;
+      updateUI_onAudioStop(audioStore.track.id);
     });
 
     fft.value = fftObject;
@@ -94,11 +94,39 @@ const playAudio = async (): Promise<void> => {
   }
 };
 
-onMounted(() => {    
-  playAudio();
-});
+const mutateAudioVolume = (mutation: any, state: any) => {
+  if (mutation.events.key === 'volume') {
+    audio.value!.volume = state.state.volume;
+  }
+}
 
-onUpdated(() => {  
+const mutateAudioPause = (mutation: any) => {
+  if (mutation.events.newValue === 'paused') {
+    audio.value!.pause();
+  }
+}
+
+const mutateAudioPlay = (mutation: any) => {
+  if (mutation.events.newValue === 'playing') {
+    if (mutation.events.oldValue === 'paused') {
+      audio.value!.play();
+    }
+
+    else if (mutation.events.oldValue === 'suspended') {
+      audio.value!.addEventListener('canplaythrough', function() {
+        audio.value!.play();
+      });
+    }
+  }
+}
+
+onMounted(() => {
+  audioStore.$subscribe((mutation: any, state) => {
+    mutateAudioVolume(mutation, state);
+    mutateAudioPause(mutation);
+    mutateAudioPlay(mutation);
+  });
+
   playAudio();
 });
 </script>
@@ -107,7 +135,7 @@ onUpdated(() => {
   <audio
     ref="audio"
     crossorigin="anonymous"
-    :src="audioStore.state.url"
+    :src="audioStore.track.url"
     :volume="audioStore.state.volume"
   ></audio>
 
