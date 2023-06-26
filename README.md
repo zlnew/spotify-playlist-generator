@@ -2,7 +2,7 @@
 
 A Spotify Playlist Generator based on various vibes.
 
-## Techology Used
+## Technology Used
 - Vue Js
 - Typescript
 - Tailwind CSS
