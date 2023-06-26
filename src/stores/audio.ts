@@ -6,7 +6,7 @@ export interface ITrack {
 }
 
 export interface IAudioState {
-  name: 'playing' | 'paused' | 'suspended' | 'ended';
+  name: 'playing' | 'paused' | 'suspended' | 'playthrough' | 'ended';
   volume: number;
 }
 
