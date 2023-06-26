@@ -27,14 +27,14 @@ onMounted(async () => {
     <template #default>
       <main>
           <div class="flex justify-center items-center">
-              <h1 class="text-4xl text-white mb-4">Connecting your account..</h1>
+              <h1 class="text-2xl text-white mb-4 md:text-4xl">Connecting your account..</h1>
           </div>
       </main>
     </template>
     <template #fallback>
       <main>
           <div class="flex justify-center items-center">
-              <h1 class="text-4xl text-white mb-4">Connecting your account..</h1>
+              <h1 class="text-2xl text-white mb-4 md:text-4xl">Connecting your account..</h1>
           </div>
       </main>
     </template>

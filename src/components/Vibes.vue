@@ -45,15 +45,25 @@ async function generateRecommendations(vibeType: IVibe['type']) {
 </script>
 
 <template>
-    <div class="mb-16 animate-fade-in flex justify-center items-center">
-        <h1 class="text-4xl text-white mb-4">What <span class="transition ease-in-out vibe-question font-bold text-primary">vibe</span> you're feeling right now</h1>
+    <div class="mb-8 animate-fade-in flex justify-center items-center md:mb-16">
+        <h1 class="text-3xl text-white mb-4 md:text-4xl">What <span class="transition ease-in-out vibe-question font-bold text-primary">vibe</span> you're feeling right now?</h1>
     </div>
 
-    <div class="animate-fade-in flex justify-center items-center space-x-8">
+    <div
+      class="
+        animate-fade-in flex-row justify-center items-center space-y-4
+        md:flex md:space-y-0 md:space-x-8">
         <div
           v-for="(_value, vibe) in vibeGenres"
           @click="generateRecommendations(vibe)"
-          class="vibe px-5 py-3 transition ease-in-out text-3xl border-b-4 border-black hover:border-white hover:scale-125"
+          class="
+            vibe
+            transition ease-in-out
+            border-black border-b-2 border-primary
+            md:border-b-4 md:hover:border-primary
+            md:px-5 md:py-3
+            md:text-3xl
+            md:hover:scale-125"
           >{{ vibe }}
         </div>
     </div>
@@ -61,8 +71,9 @@ async function generateRecommendations(vibeType: IVibe['type']) {
 
 <style scoped>
 .vibe {
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: capitalize;
+  width:max-content;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: capitalize;
 }
 </style>
