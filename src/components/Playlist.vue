@@ -19,7 +19,7 @@ function generateAgain() {
 
 <template>
   <div class="animate-fade-in mb-6 flex justify-center space-y-4">
-    <h1 class="text-4xl text-white mb-4">Congrats!, you have created a new playlist. Enjoy it!</h1>
+    <h1 class="text-2xl text-white mb-4 md:text-4xl">Congrats!, you have created a new playlist. Enjoy it!</h1>
   </div>
 
   <div class="animate-fade-in mb-6 flex justify-center space-y-4">

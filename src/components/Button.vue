@@ -43,10 +43,10 @@ const className = computed(() => {
     }
 
     const sizeClass = {
-        small: 'text-sm',
-        medium: 'text-base',
-        large: 'text-lg',
-        xlarge: 'text-xl',
+        small: 'text-xs md:text-sm',
+        medium: 'text-sm md:text-base',
+        large: 'text-base md:text-lg',
+        xlarge: 'text-lg md:text-xl',
     }
 
     return `${globalClass} ` +

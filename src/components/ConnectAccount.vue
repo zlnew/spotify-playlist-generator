@@ -8,8 +8,8 @@ function connectToSpotify() {
 </script>
 
 <template>
-    <div class="mb-16 animate-fade-in flex justify-center items-center">
-        <h1 class="text-4xl text-white mb-4">Before we start, please connect to your <span class="font-bold text-primary">Spotify Account</span></h1>
+    <div class="mb-8 md:mb-16 animate-fade-in flex justify-center items-center">
+        <h1 class="text-3xl text-white mb-4 md:text-4xl">Before we start, please connect to your <span class="font-bold text-primary">Spotify Account</span></h1>
     </div>
 
     <div class="mb-8 animate-fade-in flex justify-center items-center">
