@@ -2,7 +2,7 @@
 import { useAudioStore } from '@/stores/audio';
 import { updateUI_onAudioStop } from '@/services/audioService';
 import FFT from 'fft.js';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 defineOptions({
   inheritAttrs: false
@@ -71,6 +71,7 @@ const createSourceNode = (): void => {
 
     audioElement.addEventListener('ended', () => {
       updateUI_onAudioStop(audioStore.track.id);
+      audioStore.toggleState('ended');
     });
 
     fft.value = fftObject;
@@ -94,19 +95,20 @@ const playAudio = async (): Promise<void> => {
   }
 };
 
-const mutateAudioVolume = (mutation: any, state: any) => {
-  audio.value!.volume = state.state.volume;
+function mutateAudioVolume(volume: number) {
+  audio.value!.volume = volume;
 }
 
-const mutateAudioPause = () => {
+function mutateAudioPause() {
   audio.value!.pause();
 }
 
-const mutateAudioPlay = (mutation: any) => {
-  if (mutation.events.oldValue === 'paused') {
+function mutateAudioPlay(state: 'playthrough' | 'playing' = 'playing') {
+  if (state === 'playing') {
     audio.value!.play();
   }
-  else if (mutation.events.oldValue === 'suspended') {
+
+  if (state === 'playthrough') {
     audio.value!.addEventListener('canplaythrough', function() {
       audio.value!.play();
     });
@@ -114,17 +116,25 @@ const mutateAudioPlay = (mutation: any) => {
 }
 
 onMounted(() => {
-  audioStore.$subscribe((mutation: any, state) => {
-    if (mutation.events!.key === 'volume') {
-      mutateAudioVolume(mutation, state);
+  watch(audioStore.state, (state) => {
+    switch (state.name) {
+      case 'playing':
+        mutateAudioPlay();        
+        break;
+
+      case 'paused':
+        mutateAudioPause();
+        break;
+
+      case 'playthrough':
+        mutateAudioPlay('playthrough');
+        break;
+        
+      default:
+        break;
     }
-    
-    if (mutation.events.newValue === 'paused') {
-      mutateAudioPause();
-    }
-    else if (mutation.events.newValue === 'playing') {
-      mutateAudioPlay(mutation);
-    }
+
+    mutateAudioVolume(state.volume);
   });
 
   playAudio();
