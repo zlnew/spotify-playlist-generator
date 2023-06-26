@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { getAccessToken, getUserProfile } from '@/services/spotifyService';
 import { useSpotifyStore } from '@/stores/spotify';
 
@@ -9,15 +9,14 @@ const spotify = useSpotifyStore();
 
 onMounted(async () => {
   if (code) {
-    await getAccessToken(code).then((accessToken) => {
-      spotify.connect(accessToken);
+    await getAccessToken(code).then((auth) => {
+      spotify.connect(auth);
     });
 
-    await getUserProfile(spotify.getAccessToken).then((userProfile) => {
+    await getUserProfile().then((userProfile) => {
       spotify.user(userProfile);
     });
 
-    await nextTick();
     window.location.href = '/get-started';
   }
 });

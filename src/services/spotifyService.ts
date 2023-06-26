@@ -1,3 +1,4 @@
+import { useSpotifyStore, type ISpotify } from "@/stores/spotify";
 import axios from "axios";
 import querystring from "querystring";
 
@@ -7,33 +8,45 @@ const clientId = import.meta.env.VITE_CLIENT_ID;
 const clientSecret = import.meta.env.VITE_CLIENT_SECRET;
 const redirectUri = import.meta.env.VITE_REDIRECT_URI;
 
-interface IUserTopItems {
+const userScope = [
+  'user-read-private',
+  'user-read-email',
+  'user-top-read',
+  'playlist-modify-private',
+  'playlist-modify-public'
+];
+
+const authorization = (): ISpotify['auth'] => {
+  return useSpotifyStore().getAuth;
+}
+
+export interface IUserTopItems {
   type: 'artists' | 'tracks';
   time_range?: 'short_term' | 'medium_term' | 'long_term';
   limit?: number;
   offset?: number;
 }
 
-interface IRecommendations {
+export interface IRecommendations {
   limit?: number;
   seed_artists: string;
   seed_genres: string;
   seed_tracks: string;
 }
 
-interface IPlaylistStore {
+export interface IPlaylistStore {
   name?: string;
   public: boolean;
   description?: string;
 }
 
-interface IAddItemsToPlaylist {
+export interface IAddItemsToPlaylist {
   uris: string[];
 }
 
 export function authorizeAccount(): void {
   const state = generateRandomString(16);
-  const scope = 'user-read-private user-read-email user-top-read playlist-modify-private playlist-modify-public';
+  const scope = userScope.join(' ');
 
   const queryParams = {
     response_type: 'code',
@@ -47,7 +60,7 @@ export function authorizeAccount(): void {
   window.location.href = authorizeUrl;
 }
 
-export async function getAccessToken(code: string): Promise<string> {
+export async function getAccessToken(code: string): Promise<ISpotify['auth']> {
   const response = await axios.post(`${authBaseUrl}/api/token`, null, {
     params: {
       grant_type: 'authorization_code', code,
@@ -61,13 +74,42 @@ export async function getAccessToken(code: string): Promise<string> {
     throw new Error('Failed to retrieve access token');
   }
 
-  return response.data.access_token;
+  return {
+    accessToken: response.data.access_token,
+    refreshToken: response.data.refresh_token,
+    expiresIn: Date.now() + (response.data.expires_in * 1000),
+  }
 }
 
-export async function getUserProfile(accessToken: string): Promise<object> {
+export async function refreshAccessToken(refreshToken: string): Promise<ISpotify['auth']> {
+  const response = await axios.post(`${authBaseUrl}/api/token`, null, {
+    params: {
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret,
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Failed to refresh access token');
+  }
+
+  return {
+    accessToken: response.data.access_token,
+    refreshToken: response.data.refresh_token,
+    expiresIn: Date.now() + (response.data.expires_in * 1000),
+  }
+}
+
+export async function getUserProfile(): Promise<object> {
+  if (isAccessTokenExpired()) {
+    await refreshAuthorization(useSpotifyStore().getAuth.refreshToken);
+  }
+  
   const response = await axios.get(`${apiBaseUrl}/me`, {
     headers: {
-      Authorization: `Bearer ${accessToken}`
+      Authorization: `Bearer ${authorization().accessToken}`
     }
   });
 
@@ -79,7 +121,6 @@ export async function getUserProfile(accessToken: string): Promise<object> {
 }
 
 export async function getUserTopItems(
-  accessToken:string,
   items: IUserTopItems = {
     type: 'artists',
     time_range:'medium_term',
@@ -87,10 +128,14 @@ export async function getUserTopItems(
     offset: 0,
   }
 ): Promise<object>
-{ 
+{
+  if (isAccessTokenExpired()) {
+    await refreshAuthorization(useSpotifyStore().getAuth.refreshToken);
+  }
+
   const response = await axios.get(`${apiBaseUrl}/me/top/${items.type}`, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'Authorization': `Bearer ${authorization().accessToken}`
     },
     params: {
       time_range: items.time_range,
@@ -107,7 +152,6 @@ export async function getUserTopItems(
 }
 
 export async function getRecommendations(
-  accessToken: string,
   recommendations: IRecommendations = {
     limit: 20,
     seed_artists: '',
@@ -116,9 +160,13 @@ export async function getRecommendations(
   }
 ): Promise<object>
 {
+  if (isAccessTokenExpired()) {
+    await refreshAuthorization(useSpotifyStore().getAuth.refreshToken);
+  }
+
   const response = await axios.get(`${apiBaseUrl}/recommendations`, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'Authorization': `Bearer ${authorization().accessToken}`
     },
     params: {
       limit: recommendations.limit,
@@ -132,20 +180,23 @@ export async function getRecommendations(
     throw new Error('Failed to retrieve recommendations');
   }
 
-  return response.data;
+  return response.data.tracks;
 }
 
 export async function createPlaylist(
-  accessToken: string,
   userId: string,
   body: IPlaylistStore = {
     public: false,
   },
 ): Promise<Object>
 {
+  if (isAccessTokenExpired()) {
+    await refreshAuthorization(useSpotifyStore().getAuth.refreshToken);
+  }
+
   const response = await axios.post(`${apiBaseUrl}/users/${userId}/playlists`, body, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'Authorization': `Bearer ${authorization().accessToken}`
     },
   });
 
@@ -156,15 +207,14 @@ export async function createPlaylist(
   return response.data;
 }
 
-export async function addItemsToPlaylist(
-  accessToken: string,
-  playlistId: string,
-  body: IAddItemsToPlaylist,
-): Promise<string>
-{
+export async function addItemsToPlaylist(playlistId: string, body: IAddItemsToPlaylist): Promise<string> {
+  if (isAccessTokenExpired()) {
+    await refreshAuthorization(useSpotifyStore().getAuth.refreshToken);
+  }
+
   const response = await axios.post(`${apiBaseUrl}/playlists/${playlistId}/tracks`, body, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'Authorization': `Bearer ${authorization().accessToken}`
     },
   });
 
@@ -173,6 +223,16 @@ export async function addItemsToPlaylist(
   }
 
   return response.data;
+}
+
+function isAccessTokenExpired(): boolean {
+  return Date.now() >= useSpotifyStore().getAuth.expiresIn;
+}
+
+async function refreshAuthorization(refreshToken: string): Promise<void> {
+  await refreshAccessToken(refreshToken).then(newAuth => {
+    useSpotifyStore().connect(newAuth);
+  });
 }
 
 function generateRandomString(length: number) {
