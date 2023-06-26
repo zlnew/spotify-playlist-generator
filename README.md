@@ -1,4 +1,4 @@
-# Vibes In
+# Vibes In Spotify
 
 A Spotify Playlist Generator based on various vibes.
 
