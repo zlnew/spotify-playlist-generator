@@ -1,8 +1,12 @@
-import { type RemovableRef, useSessionStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 
-interface ISpotify {
-  accessToken: string;
+export interface ISpotify {
+  auth: {
+    accessToken: string,
+    refreshToken: string,
+    expiresIn: number,
+  };
   userProfile: Object;
   vibeType?: string;
   recommendations: {
@@ -16,7 +20,11 @@ interface ISpotify {
 };
 
 const spotify: ISpotify = {
-  accessToken: '',
+  auth: {
+    accessToken: '',
+    refreshToken: '',
+    expiresIn: 0,
+  },
   userProfile: {},
   recommendations: {
     seed_artists: [],
@@ -33,11 +41,11 @@ export const useSpotifyStore = defineStore('spotify', {
     spotify: useSessionStorage('spotifyState', spotify),
   }),
   actions: {
-    connect(accessToken: string) {
-      this.spotify.accessToken = accessToken;
+    connect(auth: ISpotify['auth']) {
+      this.spotify.auth = auth;
     },
     disconnect() {
-      this.spotify.accessToken = '';
+      this.spotify.auth = spotify.auth;
       this.spotify.userProfile = {};
     },
     user(userProfile: Object) {
@@ -57,8 +65,8 @@ export const useSpotifyStore = defineStore('spotify', {
     },
   },
   getters: {
-    getAccessToken(state) {
-      return state.spotify.accessToken;
+    getAuth(state) {
+      return state.spotify.auth;
     },
     getUserProfile(state) {
       return state.spotify.userProfile;

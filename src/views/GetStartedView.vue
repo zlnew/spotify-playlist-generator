@@ -10,22 +10,20 @@ const router = useRouter();
 const spotify = useSpotifyStore();
 
 spotify.$subscribe((_mutation, state) => {
-    if (!state.spotify.isLoading) {
-        router.push({ name: 'recommendations' });
-    }
+  if (!state.spotify.isLoading) {
+    router.push({ name: 'recommendations' });
+  }
 });
 
 const component = computed(() => {
-    if (spotify.getAccessToken)
-        return Vibes;
-    
-    return ConnectAccount;
+  if (spotify.getAuth.accessToken) return Vibes;
+  return ConnectAccount;
 });
 </script>
 
 <template>
-    <main>
-        <v-loading v-if="spotify.isLoading" text="Generating playlist for you.." />
-        <component v-else :is="component" />
-    </main>
+  <main>
+    <v-loading v-if="spotify.isLoading" text="Generating playlist for you.." />
+    <component v-else :is="component" />
+  </main>
 </template>
