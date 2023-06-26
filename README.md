@@ -1,8 +1,8 @@
-# VIBES In
+# Vibes In
 
 A Spotify Playlist Generator based on various vibes.
 
-# Techology Used
+## Techology Used
 - Vue Js
 - Typescript
 - Tailwind CSS
