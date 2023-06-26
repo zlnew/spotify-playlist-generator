@@ -7,3 +7,5 @@ A Spotify Playlist Generator based on various vibes.
 - Typescript
 - Tailwind CSS
 - Spotify Web API
+
+### Website Link: https://vibes-in.netlify.app
