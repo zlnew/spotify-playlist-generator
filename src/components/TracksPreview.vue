@@ -2,14 +2,15 @@
 import { RouterLink } from "vue-router";
 import VButton from '@/components/Button.vue';
 import { useSpotifyStore } from '@/stores/spotify';
-import { ref, onBeforeUnmount } from 'vue';
+import { onBeforeUnmount } from 'vue';
 import { toggleAudioPlay, setAudioVolume } from '@/services/audioService';
 import { addItemsToPlaylist, createPlaylist } from '@/services/spotifyService';
 import { useAudioStore } from "@/stores/audio";
+import { vibeStyleClass } from '@/services/vibesService';
 
 const spotify = useSpotifyStore();
 const tracks: any = spotify.getRecommendations.tracks;
-const volume = ref(0.5);
+const volume = useAudioStore().state.volume;
 
 async function saveItemsToPlaylist() {
   spotify.loading(true);
@@ -49,14 +50,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="animate-fade-in mb-6 md:flex justify-center space-y-4">
-    <h1 class="text-lg text-white mb-4 md:text-4xl">Here are our recommendations for your chosen  {{ spotify.getVibeType }} vibes.</h1>
+    <h1 class="text-lg text-white mb-4 md:text-4xl">
+      Here are our recommendations for your chosen
+      <span :class="vibeStyleClass[spotify.getVibeType!].text" class="capitalize font-bold">{{ spotify.getVibeType }} vibes.</span>
+    </h1>
   </div>
 
   <div class="mb-4 animate-fade-in space-y-4 md:px-0">
     <table class="w-full text-left">
-      <thead class="border-b border-primary">
-        <tr class="text-primary">
-          <th class="p-1">Total: {{ tracks.length }} tracks</th>
+      <thead class="border-b-2 border-primary">
+        <tr>
+          <th class="p-1">Total: {{ tracks.length }} Tracks</th>
         </tr>
       </thead>
     </table>
@@ -92,7 +96,7 @@ onBeforeUnmount(() => {
           
           <td class="p-1">
             <div class="flex justify-start space-x-4">
-              <img class="max-h-10 md:max-h-auto" :src="track.album.images[2].url">
+              <img class="max-h-10 md:max-h-20" :src="track.album.images[2].url">
               <div>
                 <h5 class="text-sm font-bold md:text-lg">
                   <a :href="track.external_urls.spotify" :id="`title${track.id}`">
@@ -100,10 +104,9 @@ onBeforeUnmount(() => {
                   </a>
                 </h5>
 
-                <div class="text-sm flex space-x-2 md:text-lg">
+                <div class="text-xs md:text-lg">
                   <span v-for="(artist, index) in track.artists" :key="artist.id">
-                    {{ artist.name }}
-                    <span v-if="index !== track.artists.length - 1">, </span>
+                    {{ artist.name }}<span v-if="index !== track.artists.length - 1">, </span>
                   </span>
                 </div>
               </div>
@@ -121,7 +124,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="md:flex md:justify-end md:space-x-4">
-      <div class="my-4 md:my-0">
+      <div class="mt-8 mb-4 md:my-0">
         <v-button class="w-full" @click="saveItemsToPlaylist()" variant="primary" slotted>
           <v-icon icon="fa-brands fa-spotify" size="lg" class="mr-2" />Save tracks to a new playlist
         </v-button>
@@ -141,7 +144,6 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 
-/* Webkit based browsers */
 ::-webkit-scrollbar {
   width: 4px;
 }
