@@ -7,7 +7,7 @@ const audioStore = useAudioStore();
 
 <template>
   <div
-    v-if="audioStore.state.name === 'playing' || audioStore.state.name === 'paused'"
+    v-if="audioStore.state.name === 'playing' || audioStore.state.name === 'paused' || audioStore.state.name === 'playthrough'"
     class="av-bar-container z-[-1] transition-all ease-in-out">
     <av-bars v-bind="audioStore.track" />
   </div>

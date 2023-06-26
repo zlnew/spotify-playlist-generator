@@ -42,12 +42,13 @@ const UI_Elements = (track_id: string): Object => {
   return { track, titleTrack, playButton, pauseButton, audioEl };
 }
 
-function playAudio(track: ITrack): void {
+function playAudio(track: ITrack, state: 'playthrough' | 'playing' = 'playing'): void {
   const audioStore = useAudioStore();
   const settings = { id: track.id, url: track.url, };
 
   audioStore.setTrack(settings);
-  audioStore.toggleState('playing');
+  audioStore.toggleState(state);
+
   updateUI_onAudioPlay(track.id);
 }
 
@@ -65,15 +66,16 @@ export function toggleAudioPlay(track: ITrack) {
 
   if (audioStore.track.id && track.id !== audioStore.track.id && audioStore.state.name !== 'suspended') {
     updateUI_onAudioSwitch(audioStore.track.id);
-    audioStore.toggleState('suspended');
+    playAudio(track, 'playthrough');
+    return;
   }
 
-  if (audioStore.state.name === 'playing') {
+  if (audioStore.state.name === 'playing' || audioStore.state.name === 'playthrough') {
     pauseAudio(track);
     return;
   }
 
-  if (audioStore.state.name === 'suspended' || audioStore.state.name === 'paused') {
+  if (audioStore.state.name === 'suspended' || audioStore.state.name === 'paused' || audioStore.state.name === 'ended') {
     playAudio(track);
     return;
   }
