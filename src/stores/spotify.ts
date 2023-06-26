@@ -1,3 +1,4 @@
+import { type IVibe } from "@/services/vibesService";
 import { useSessionStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 
@@ -8,7 +9,7 @@ export interface ISpotify {
     expiresIn: number,
   };
   userProfile: Object;
-  vibeType?: string;
+  vibeType?: IVibe['type'];
   recommendations: {
     seed_artists: Array<string>;
     seed_genres: Array<string>;
@@ -57,7 +58,7 @@ export const useSpotifyStore = defineStore('spotify', {
     playlist(tracks: Object) {
       this.spotify.playlist = tracks;
     },
-    vibeType(vibeType: string) {
+    vibeType(vibeType: IVibe['type']) {
       this.spotify.vibeType = vibeType;
     },
     loading(isLoading: boolean) {
