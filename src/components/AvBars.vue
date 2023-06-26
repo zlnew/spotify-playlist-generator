@@ -95,36 +95,36 @@ const playAudio = async (): Promise<void> => {
 };
 
 const mutateAudioVolume = (mutation: any, state: any) => {
-  if (mutation.events.key === 'volume') {
-    audio.value!.volume = state.state.volume;
-  }
+  audio.value!.volume = state.state.volume;
 }
 
-const mutateAudioPause = (mutation: any) => {
-  if (mutation.events.newValue === 'paused') {
-    audio.value!.pause();
-  }
+const mutateAudioPause = () => {
+  audio.value!.pause();
 }
 
 const mutateAudioPlay = (mutation: any) => {
-  if (mutation.events.newValue === 'playing') {
-    if (mutation.events.oldValue === 'paused') {
+  if (mutation.events.oldValue === 'paused') {
+    audio.value!.play();
+  }
+  else if (mutation.events.oldValue === 'suspended') {
+    audio.value!.addEventListener('canplaythrough', function() {
       audio.value!.play();
-    }
-
-    else if (mutation.events.oldValue === 'suspended') {
-      audio.value!.addEventListener('canplaythrough', function() {
-        audio.value!.play();
-      });
-    }
+    });
   }
 }
 
 onMounted(() => {
   audioStore.$subscribe((mutation: any, state) => {
-    mutateAudioVolume(mutation, state);
-    mutateAudioPause(mutation);
-    mutateAudioPlay(mutation);
+    if (mutation.events!.key === 'volume') {
+      mutateAudioVolume(mutation, state);
+    }
+    
+    if (mutation.events.newValue === 'paused') {
+      mutateAudioPause();
+    }
+    else if (mutation.events.newValue === 'playing') {
+      mutateAudioPlay(mutation);
+    }
   });
 
   playAudio();

@@ -2,6 +2,44 @@ export interface IVibe {
   type: 'energetic' |'melancholic' |'relaxing' | 'upbeat' | 'uplifting' | 'love' | 'thoughtful';
 }
 
+export const vibeStyleClass: Record<IVibe['type'], { text: string, textHover: string, border: string }> = {
+  energetic: {
+    text: 'text-energetic',
+    textHover: 'hover:text-energetic',
+    border: 'border-energetic',
+  },
+  melancholic: {
+    text: 'text-melancholic',
+    textHover: 'hover:text-melancholic',
+    border: 'border-melancholic'
+  },
+  relaxing: {
+    text: 'text-relaxing',
+    textHover: 'hover:text-relaxing',
+    border: 'border-relaxing',
+  },
+  upbeat: {
+    text: 'text-upbeat',
+    textHover: 'hover:text-upbeat',
+    border: 'border-upbeat',
+  },
+  uplifting: {
+    text: 'text-uplifting',
+    textHover: 'hover:text-uplifting',
+    border: 'border-uplifting',
+  },
+  love: {
+    text: 'text-love',
+    textHover: 'hover:text-love',
+    border: 'border-love',
+  },
+  thoughtful: {
+    text: 'text-thoughtful',
+    textHover: 'hover:text-thoughtful',
+    border: 'border-thoughtful',
+  }
+}
+
 export const vibeGenres: Record<IVibe['type'], { genres: string[] }> = {
   energetic: {
     genres: ['pop', 'dance', 'electronic', 'funk', 'r&b'],

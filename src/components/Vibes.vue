@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getUserTopItems, getRecommendations } from '@/services/spotifyService';
-import { vibeGenres, getRandomGenres, type IVibe } from '@/services/vibesService';
+import { vibeGenres, getRandomGenres, vibeStyleClass, type IVibe } from '@/services/vibesService';
 import { useSpotifyStore } from '@/stores/spotify';
 
 const spotify = useSpotifyStore();
@@ -56,11 +56,12 @@ async function generateRecommendations(vibeType: IVibe['type']) {
         <div
           v-for="(_value, vibe) in vibeGenres"
           @click="generateRecommendations(vibe)"
+          :class="[vibeStyleClass[vibe].textHover, vibeStyleClass[vibe].border]"
           class="
             vibe
             transition ease-in-out
-            border-black border-b-2 border-primary
-            md:border-b-4 md:hover:border-primary
+            border-black border-b-2
+            md:border-b-2 md:hover:border-none
             md:px-5 md:py-3
             md:text-3xl
             md:hover:scale-125"
