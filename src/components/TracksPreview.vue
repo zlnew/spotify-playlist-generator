@@ -25,7 +25,7 @@ async function saveItemsToPlaylist() {
 }
 
 async function creatingPlaylist(userId: string) {
-  const playlistName = `${spotify.getVibeType} Vibes by Vibes In`;
+  const playlistName = `${spotify.getVibeType?.toUpperCase()} Vibes by Vibes In`;
   const createPlaylistData = {
     name: playlistName,
     public: true,
