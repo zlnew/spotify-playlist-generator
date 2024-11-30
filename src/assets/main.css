@@ -1,31 +1,35 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './base.css';
 
-@layer base {
-  :root {
-    --color-primary: 160deg 100% 37%;
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
 
-    --color-black: #181818;
-    --color-black-soft: #222222;
-    --color-black-mute: #282828;
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
 
-    --color-white: #ffffff;
-    --color-white-soft: #f8f8f8;
-    --color-white-mute: #f2f2f2;
-
-    --color-energetic: #fcd34d;
-    --color-melancholic: #0891b2;
-    --color-relaxing: #4ade80;
-    --color-upbeat: #ef4444;
-    --color-uplifting: #a855f7;
-    --color-love: #be185d;
-    --color-thoughtful: #581c87;
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
   }
 }
 
-@layer components {
-  .av-bar-container {
-    @apply w-full fixed right-0 bottom-0 flex justify-center items-end
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
   }
 }

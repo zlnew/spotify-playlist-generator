@@ -26,7 +26,5 @@ coverage
 *.njsproj
 *.sln
 *.sw?
-.env
 
-# Local Netlify folder
-.netlify
+*.tsbuildinfo
